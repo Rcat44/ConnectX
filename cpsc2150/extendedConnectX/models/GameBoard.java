@@ -1,0 +1,181 @@
+package cpsc2150.extendedConnectX.models;
+
+/*GROUP MEMBER NAMES AND GITHUB USERNAMES SHOULD GO HERE
+    Noah  Fultz     (nfultz23)
+    James Moore     (1091229)
+    Reese Myers     (Rcat44)
+    Bryan Pisciotti (bpisciotti)
+ */
+
+/**
+ * This class is for a GameBoard representing a ConnectX board. The GameBoard is represented by a character array.
+ *
+ * @invariant 0 <= currentNumTokens <= MAX_TOKENS_ALLOWED
+ *              boardArray[0...i][j] != ' ' IF self[i][j] != ' ' AND
+ *              boardArray[i...NUMBER_OF_ROWS][j] = ' ' IF self[i][j] = ' ' AND
+ *              IGameBoard.MIN_ROWS <= NUM_ROWS <= IGameBoard.MAX_ROWS AND
+ *              IGameBoard.MIN_COLS <= NUM_COLUMNS <= IGameBoard.MAX_COLS AND
+ *              IGameBoard.MIN_TO_WIN <= NUM_TO_WIN <= IGameBoard.MAX_NUM_TO_WIN
+ *              NUM_TO_WIN <= NUM_ROWS AND
+ *              NUM_TO_WIN <= NUM_COLS AND
+ *              MAX_TOKENS_ALLOWED = NUM_ROWS * NUM_COLUMNS AND
+ *              [self should not contain an empty row below an occupied row] AND
+ *              [self should only contain blank spaces and uppercase letters]
+ * <p>
+ * @corresponds NUMBER_OF_ROWS = NUM_ROWS
+ * @corresponds NUMBER_OF_COLUMNS = NUM_COLUMNS
+ * @corresponds NUMBER_TO_WIN = NUM_TO_WIN
+ * @corresponds TOKENS_WHEN_FULL = MAX_TOKENS_ALLOWED
+ * @corresponds tokens_in_board = currentNumTokens
+ * @corresponds self = boardArray
+ */
+public class GameBoard extends AbsGameBoard implements IGameBoard {
+
+    private final int NUM_ROWS;
+    private final int NUM_COLUMNS;
+    private final int NUM_TO_WIN;
+    private final int MAX_TOKENS_ALLOWED;
+    private int currentNumTokens;
+    private char[][] boardArray;
+
+    /**
+    * Constructor for a GameBoard object.
+    *
+    * @param numRows int representing the number of rows in the board
+    * @param numColumns int representing the number of columns in the board
+    * @param numToWin int representing the number of tokens in a row required to win
+    *
+    * @pre IGameBoard.MIN_ROWS <= numRows <= IGameBoard.MAX_ROWS AND
+    *       IGameBoard.MIN_COLS <= numColumns <= IGameBoard.MAX_COLS AND
+    *       IGameBoard.MIN_TO_WIN <= numToWin <= IGameBoard.MAX_NUM_TO_WIN AND
+    *       numToWin <= numRows AND
+    *       numToWin <= numColumns
+    * 
+    * @post this.NUM_ROWS = numRows AND
+    *       this.NUM_COLUMNS = numColumns AND 
+    *       this.NUM_TO_WIN = numToWin AND
+    *       this.MAX_TOKENS_ALLOWED = this.NUMBER_OF_ROWS * this.NUMBER_OF_COLUMNS AND
+    *       this.currentNumTokens = 0 AND 
+    *       boardArray[0...this.NUMBER_OF_ROWS-1][0...this.NUMBER_OF_COLUMNS-1] = ' '
+    */
+    public GameBoard(int numRows, int numColumns, int numToWin) {
+
+        this.NUM_ROWS = numRows;
+        this.NUM_COLUMNS = numColumns;
+        this.NUM_TO_WIN = numToWin;
+        this.MAX_TOKENS_ALLOWED = this.NUM_ROWS * this.NUM_COLUMNS;
+        this.currentNumTokens = 0;
+
+        this.boardArray = new char[this.NUM_ROWS][this.NUM_COLUMNS];
+
+        for (int i = 0; i < this.NUM_ROWS; i++) {
+            for (int j = 0; j < this.NUM_COLUMNS; j++) {
+                boardArray[i][j] = ' ';
+            }
+        }
+    }
+
+    /**
+     * Function returns number of rows in board
+     *
+     * @return int representing number of rows in the board
+     *
+     * @pre None
+     * 
+     * @post getNumRows = NUM_ROWS AND 
+     *          self = #self AND 
+     *          currentNumTokens = #currentNumTokens
+     */
+    public int getNumRows() {
+        return this.NUM_ROWS;
+    }
+
+    /**
+     * Function returns the number of columns in board
+     *
+     * @return int representing number of columns in the board
+     *
+     * @pre None
+     *
+     * @post getNumColumns = NUM_COLUMNS AND
+     *          self = #self AND
+     *          currentNumTokens = #currentNumTokens
+     */
+    public int getNumColumns() {
+        return this.NUM_COLUMNS;
+    }
+
+    /**
+     * Function returns the number of tokens in a row a player needs to achieve to win
+     *
+     * @return int representing the number of consecutive tokens needed to win
+     *
+     * @pre None
+     *
+     * @post getNumToWin = NUM_TO_WIN AND 
+     *          self = #self AND 
+     *          currentNumTokens = #currentNumTokens
+     */
+    public int getNumToWin() {
+        return this.NUM_TO_WIN;
+    }
+
+
+    /**
+     * Returns character in self at position pos.
+     * 
+     * @return [the character in self at position pos]
+     *
+     * @param pos BoardPosition object containing particular row and column values
+     *
+     * @pre None
+     * 
+     * @post whatsAtPos = [the character in self at position pos] AND
+     *          currentNumTokens = #currentNumTokens AND 
+     *          self = #self
+     */
+    public char whatsAtPos(BoardPosition pos) {
+        return boardArray[pos.getRow()][pos.getColumn()];
+    }
+
+
+    /**
+     * Updates self by having the token fall to the lowest available row in column c.
+     * 
+     * @param p uppercase letter character representing the player token to drop
+     * @param c number representing selected column as an int
+     *
+     * @pre [p is an uppercase letter character] AND 
+     *          0 <= c < NUM_COLUMNS AND
+     *          checkIfFree(c) == true
+     *
+     * @post [self = #self with character p added at the lowest empty row in column c] AND
+     *          currentNumTokens = #currentNumTokens + 1
+     */
+    public void dropToken(char p, int c) {
+        int i = 0;
+        // iterates up from bottom of the board until a blank space is found
+        while (boardArray[i][c] != ' ') {
+            i++;
+        }
+        // token is placed in blank space and currentNumTokens is incremented.
+        boardArray[i][c] = p;
+        currentNumTokens++;
+    }
+
+    /**
+     * Returns boolean representing whether the board is completely full after checking how many tokens have been played
+     *
+     * @return false if at least one free space remains and true if none remain
+     *
+     * @pre None
+     *
+     * @post checkTie = true IFF currentNumTokens == MAX_TOKENS_ALLOWED, false OW AND
+     *          self = #self AND 
+     *          currentNumTokens = #currentNumTokens
+     */
+    @Override
+    public boolean checkTie() {
+        return currentNumTokens == MAX_TOKENS_ALLOWED;
+    }
+}
