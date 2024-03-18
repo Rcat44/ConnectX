@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"cpsc2150.extendedConnects"},{"l":"cpsc2150.extendedConnectX.models"},{"l":"cpsc2150.extendedConnectX.tests"}];updateSearchResults();
